@@ -4,10 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-// Định nghĩa lớp Product (cần thiết để Client có thể Deserialize đối tượng)
 class Product implements Serializable {
     private static final long serialVersionUID = 20161107L;
-    // Đặt thuộc tính là public để dễ dàng thao tác như trong code mẫu ban đầu
     public String id;
     public String code;
     public String name;
@@ -15,7 +13,6 @@ class Product implements Serializable {
     public Product(String id, String code, String name, int quantity) {
         this.id = id; this.code = code; this.name = name; this.quantity = quantity;
     }
-    // Các setters (cần thiết cho việc sửa đổi dữ liệu)
     public void setName(String name) { this.name = name; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
     @Override
@@ -26,52 +23,41 @@ class Product implements Serializable {
 public class fghs {
     private static final String HOST = "203.162.10.109";
     private static final int PORT = 2209;
-    private static final String STUDENT_CODE = "B22DCCN568"; // Thay bằng MSSV của bạn
+    private static final String STUDENT_CODE = "B22DCCN568"; 
     private static final String QCODE = "PWZy1Ru1";
     public static void main(String[] args) {
         try (DatagramSocket socket = new DatagramSocket()) {
-            // --- BƯỚC 1: GỬI THÔNG ĐIỆP YÊU CẦU ---
             String hello = ";" + STUDENT_CODE + ";" + QCODE;
             byte[] sendBuffer = hello.getBytes(StandardCharsets.UTF_8);
             socket.send(new DatagramPacket(sendBuffer, sendBuffer.length, InetAddress.getByName(HOST), PORT));
             System.out.println("1. Gửi yêu cầu: " + hello);
-            // --- BƯỚC 2: NHẬN DỮ LIỆU TỪ SERVER ---
-            byte[] buf = new byte[65507]; // Kích thước tối đa cho gói tin UDP
+            byte[] buf = new byte[65507]; 
             DatagramPacket recv = new DatagramPacket(buf, buf.length);
             socket.receive(recv);
-            // Trích xuất requestId (8 byte đầu)
             String requestId = new String(buf, 0, 8, StandardCharsets.UTF_8).trim();
             System.out.println("2. Nhận requestId: " + requestId);
-            // Trích xuất đối tượng Product (từ byte thứ 8 trở đi)
             int objectLength = recv.getLength() - 8;
             Product p = (Product) new ObjectInputStream(new ByteArrayInputStream(buf, 8, objectLength)).readObject();
             System.out.println("   Dữ liệu bị lỗi (Gốc): " + p);
-            // --- BƯỚC 3: SỬA TÊN VÀ SỐ LƯỢNG (Hoàn nguyên) ---
-            // a. Sửa tên: Đảo ngược từ đầu tiên và từ cuối cùng
             String restoredName = restoreFirstLastWords(p.name);
             p.setName(restoredName);
-            // b. Sửa số lượng: Đảo ngược các chữ số
             int restoredQuantity = reverseDigits(p.quantity);
             p.setQuantity(restoredQuantity);
-            System.out.println("3. Dữ liệu đã sửa (Hoàn nguyên): " + p);
-            // --- BƯỚC 4: GỬI LẠI ĐỐI TƯỢNG ĐÃ SỬA ĐỔI ---
+            System.out.println("3. Dữ liệu đã sửa : " + p);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            // Ghi 8 byte requestId đầu tiên
             bos.write(requestId.getBytes(StandardCharsets.UTF_8));
-            // Ghi đối tượng Product đã sửa đổi
             ObjectOutputStream oos = new ObjectOutputStream(bos);
             oos.writeObject(p);
             oos.flush();
             byte[] sendBack = bos.toByteArray();
             socket.send(new DatagramPacket(sendBack, sendBack.length,
                     InetAddress.getByName(HOST), PORT));
-            System.out.println("4. Gửi lại đối tượng đã sửa đổi thành công.");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     private static String restoreFirstLastWords(String name) {
-        String[] w = name.trim().split("\\s+");    // tách theo mọi khoảng trắng
+        String[] w = name.trim().split("\\s+");    
         if (w.length > 1) {
             // Chỉ đảo (swap) từ đầu tiên và từ cuối cùng
             String temp = w[0];
@@ -98,7 +84,6 @@ class Customer implements Serializable {
     public String name;
     public String dayOfBirth;
     public String userName;
-
     public Customer(String id, String code, String name, String dayOfBirth, String userName) {
         this.id = id;
         this.code = code;
@@ -106,7 +91,6 @@ class Customer implements Serializable {
         this.dayOfBirth = dayOfBirth;
         this.userName = userName;
     }
-
     @Override
     public String toString() {
         return String.format("Customer[id=%s, code=%s, name=%s, dob=%s, userName=%s]",
@@ -116,7 +100,7 @@ class Customer implements Serializable {
 public class kjuyht {
     private static final String HOST = "203.162.10.109";
     private static final int PORT = 2209;
-    private static final String STUDENT_CODE = "B22DCCN568"; // Đổi mã sinh viên của bạn ở đây
+    private static final String STUDENT_CODE = "B22DCCN568"; 
     private static final String QCODE = "xXRF175e";
     public static void main(String[] args) {
         try (DatagramSocket socket = new DatagramSocket()) {
@@ -191,11 +175,9 @@ public class kjuyht {
 }
 // Trao đổi client
 package UDP;
-
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-
 // Định nghĩa class Student đúng như yêu cầu đề
 class Student implements Serializable {
     private static final long serialVersionUID = 20171107L;
@@ -203,30 +185,25 @@ class Student implements Serializable {
     public String code;
     public String name;
     public String email;
-
     public Student(String id, String code, String name, String email) {
         this.id = id;
         this.code = code;
         this.name = name;
         this.email = email;
     }
-
     public Student(String code) {
         this.code = code;
     }
-
     @Override
     public String toString() {
         return String.format("Student[id=%s, code=%s, name=%s, email=%s]", id, code, name, email);
     }
 }
-
 public class _4elPYvXf {
     private static final String HOST = "203.162.10.109";
     private static final int PORT = 2209;
-    private static final String STUDENT_CODE = "B22DCCN568"; // Đổi mã sinh viên của bạn ở đây
+    private static final String STUDENT_CODE = "B22DCCN568";
     private static final String QCODE = "4elPYvXf";
-
     public static void main(String[] args) {
         try (DatagramSocket socket = new DatagramSocket()) {
             // Bước 1: Gửi yêu cầu
@@ -234,24 +211,19 @@ public class _4elPYvXf {
             byte[] sendBuf = hello.getBytes(StandardCharsets.UTF_8);
             socket.send(new DatagramPacket(sendBuf, sendBuf.length, InetAddress.getByName(HOST), PORT));
             System.out.println("1. Đã gửi yêu cầu: " + hello);
-
             // Bước 2: Nhận dữ liệu (requestId + object Student)
             byte[] buf = new byte[4096];
             DatagramPacket recv = new DatagramPacket(buf, buf.length);
             socket.receive(recv);
             String requestId = new String(buf, 0, 8, StandardCharsets.UTF_8).trim();
-
             // Deserialize object Student (bắt đầu từ byte 8)
             int objLen = recv.getLength() - 8;
             Student stu = (Student) new ObjectInputStream(new ByteArrayInputStream(buf, 8, objLen)).readObject();
-
             System.out.println("2. Đã nhận: " + stu);
-
             // Bước 3: Xử lý chuẩn hóa tên và email
             stu.name = capitalizeName(stu.name);
             stu.email = makeEmail(stu.name);
             System.out.println("3. Sau xử lý: " + stu);
-
             // Bước 4: Serialize lại object và gửi lại kèm requestId
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             bos.write(requestId.getBytes(StandardCharsets.UTF_8));
@@ -261,13 +233,11 @@ public class _4elPYvXf {
             byte[] sendBack = bos.toByteArray();
             socket.send(new DatagramPacket(sendBack, sendBack.length, InetAddress.getByName(HOST), PORT));
             System.out.println("4. Đã gửi lại object hoàn chỉnh!");
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         System.out.println("Chương trình kết thúc.");
     }
-
     // "nguyen van tuan nam" -> "Nguyen Van Tuan Nam"
     private static String capitalizeName(String raw) {
         String[] arr = raw.trim().toLowerCase().split("\\s+");
@@ -282,12 +252,11 @@ public class _4elPYvXf {
         }
         return result.toString().trim();
     }
-
     // "Nguyen Van Tuan Nam" -> "namnvt@ptit.edu.vn"
     private static String makeEmail(String name) {
         String[] arr = name.trim().toLowerCase().split("\\s+");
         if (arr.length == 0) return "@ptit.edu.vn";
-        String lastName = arr[arr.length - 1]; // tên cuối cùng
+        String lastName = arr[arr.length - 1]; 
         StringBuilder sb = new StringBuilder(lastName);
         for (int i = 0; i < arr.length - 1; i++) {
             sb.append(arr[i].charAt(0));
@@ -298,11 +267,9 @@ public class _4elPYvXf {
 }
 // UDP Book
 package UDP;
-
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-
 // Định nghĩa class Book đúng như đề
 class Book implements Serializable {
     private static final long serialVersionUID = 20251107L;
@@ -311,7 +278,6 @@ class Book implements Serializable {
     public String author;
     public String isbn;
     public String publishDate;
-
     public Book(String id, String title, String author, String isbn, String publishDate) {
         this.id = id;
         this.title = title;
@@ -319,42 +285,35 @@ class Book implements Serializable {
         this.isbn = isbn;
         this.publishDate = publishDate;
     }
-
     @Override
     public String toString() {
         return String.format("Book[id=%s, title=%s, author=%s, isbn=%s, publishDate=%s]",
                 id, title, author, isbn, publishDate);
     }
 }
-
 public class aw3MPqDo {
     private static final String HOST = "203.162.10.109";
     private static final int PORT = 2209;
-    private static final String STUDENT_CODE = "B22DCCN568"; // Đổi mã sinh viên của bạn ở đây
+    private static final String STUDENT_CODE = "B22DCCN568";
     private static final String QCODE = "aw3MPqDo";
     public static void main(String[] args) {
         try (DatagramSocket socket = new DatagramSocket()) {
-            // 1. Gửi yêu cầu
             String hello = ";" + STUDENT_CODE + ";" + QCODE;
             byte[] sendBuf = hello.getBytes(StandardCharsets.UTF_8);
             socket.send(new DatagramPacket(sendBuf, sendBuf.length, InetAddress.getByName(HOST), PORT));
             System.out.println("1. Đã gửi yêu cầu: " + hello);
-            // 2. Nhận dữ liệu (requestId + object Book)
             byte[] buf = new byte[4096];
             DatagramPacket recv = new DatagramPacket(buf, buf.length);
             socket.receive(recv);
             String requestId = new String(buf, 0, 8, StandardCharsets.UTF_8).trim();
-            // Deserialize object Book (bắt đầu từ byte 8)
             int objLen = recv.getLength() - 8;
             Book book = (Book) new ObjectInputStream(new ByteArrayInputStream(buf, 8, objLen)).readObject();
             System.out.println("2. Đã nhận: " + book);
-            // 3. Xử lý chuẩn hóa dữ liệu
             book.title = capitalizeWords(book.title);
             book.author = normalizeAuthor(book.author);
             book.isbn = normalizeISBN(book.isbn);
             book.publishDate = convertDate(book.publishDate);
             System.out.println("3. Sau chuẩn hóa: " + book);
-            // 4. Serialize lại object và gửi lại kèm requestId
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             bos.write(requestId.getBytes(StandardCharsets.UTF_8));
             ObjectOutputStream oos = new ObjectOutputStream(bos);
@@ -362,7 +321,6 @@ public class aw3MPqDo {
             oos.flush();
             byte[] sendBack = bos.toByteArray();
             socket.send(new DatagramPacket(sendBack, sendBack.length, InetAddress.getByName(HOST), PORT));
-            System.out.println("4. Đã gửi lại object hoàn chỉnh!");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -407,27 +365,22 @@ public class aw3MPqDo {
         }
         return capitalizeFirst(arr[0]) + ", " + given.toString();
     }
-    // Chỉ viết hoa chữ cái đầu
     private static String capitalizeFirst(String s) {
         if (s == null || s.isEmpty()) return s;
         return Character.toUpperCase(s.charAt(0)) + (s.length() > 1 ? s.substring(1) : "");
     }
-    // Định dạng lại ISBN thành 978-3-16-148410-0 (ví dụ)
     private static String normalizeISBN(String isbn) {
         String digits = isbn.replaceAll("[^0-9X]", "");
-        // Nếu đủ 13 số (ISBN-13), format lại
         if (digits.length() == 13) {
             return String.format("%s-%s-%s-%s-%s",
-                    digits.substring(0, 3),  // 978
-                    digits.substring(3, 4),  // 3
-                    digits.substring(4, 6),  // 16
-                    digits.substring(6, 12), // 148410
-                    digits.substring(12));   // 0
+                    digits.substring(0, 3),  
+                    digits.substring(3, 4),  
+                    digits.substring(4, 6),  
+                    digits.substring(6, 12), 
+                    digits.substring(12));   
         }
-        // Nếu không đủ hoặc format lỗi, trả về nguyên bản
         return isbn;
     }
-    // yyyy-mm-dd -> mm/yyyy
     private static String convertDate(String pub) {
         String[] parts = pub.split("-");
         if (parts.length != 3) return pub;
@@ -436,11 +389,9 @@ public class aw3MPqDo {
 }
 //UDP Student
 package UDP;
-
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-
 // Định nghĩa class Student đúng yêu cầu đề
 class Student implements Serializable {
     private static final long serialVersionUID = 20171107L;
@@ -448,24 +399,20 @@ class Student implements Serializable {
     public String code;
     public String name;
     public String email;
-
     public Student(String id, String code, String name, String email) {
         this.id = id;
         this.code = code;
         this.name = name;
         this.email = email;
     }
-
     public Student(String code) {
         this.code = code;
     }
-
     @Override
     public String toString() {
         return String.format("Student[id=%s, code=%s, name=%s, email=%s]", id, code, name, email);
     }
 }
-
 public class _4elPYvXf {
     private static final String HOST = "203.162.10.109";
     private static final int PORT = 2209;
@@ -500,7 +447,6 @@ public class _4elPYvXf {
             byte[] sendBack = bos.toByteArray();
             socket.send(new DatagramPacket(sendBack, sendBack.length, InetAddress.getByName(HOST), PORT));
             System.out.println("4. Đã gửi lại object hoàn chỉnh!");
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -531,5 +477,189 @@ public class _4elPYvXf {
         }
         sb.append("@ptit.edu.vn");
         return sb.toString();
+    }
+}
+//TCP Bài Laptop 
+package TCP;
+import java.io.Serializable;
+public class Laptop implements Serializable {
+    private static final long serialVersionUID = 20150711L;
+    private int id;
+    private String code;
+    private String name;
+    private int quantity;
+    public Laptop(int id, String code, String name, int quantity) {
+        this.id = id;
+        this.code = code;
+        this.name = name;
+        this.quantity = quantity;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public int getQuantity() {
+        return quantity;
+    }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+    @Override
+    public String toString() {
+        return "Laptop [id=" + id + ", code=" + code + ", name='" + name + "', quantity=" + quantity + "]";
+    }
+}
+package TCP;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+public class LaptopClient {
+    private static final int SERVER_PORT = 2209;
+    private static final String SERVER_ADDRESS = "203.162.10.109";
+    public static void main(String[] args) {
+        String studentCode = "B22DCCN568";
+        String qCode = "7TQsOLYR";
+        String initialData = studentCode + ";" + qCode;
+        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+            oos.writeObject(initialData);
+            oos.flush();
+            System.out.println("1. Sent initial data: " + initialData);
+            Laptop receivedLaptop = (Laptop) ois.readObject();
+            System.out.println("2. Received corrupted data: " + receivedLaptop);
+            String originalName = receivedLaptop.getName();
+            String correctedName = correctName(originalName);
+            receivedLaptop.setName(correctedName);
+            int originalQuantity = receivedLaptop.getQuantity();
+            int correctedQuantity = correctQuantity(originalQuantity);
+            receivedLaptop.setQuantity(correctedQuantity);
+            oos.writeObject(receivedLaptop);
+            oos.flush();
+            System.out.println("3. Sent corrected data: " + receivedLaptop);
+            System.out.println("4. Socket closed. Program terminated.");
+        } catch (Exception e) {
+            System.err.println("Client Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private static String correctName(String corruptedName) {
+        String[] words = corruptedName.split(" ");
+        if (words.length < 2) {
+            return corruptedName;
+        }
+        String firstWord = words[0];
+        String lastWord = words[words.length - 1];
+        words[0] = lastWord;
+        words[words.length - 1] = firstWord;
+        return String.join(" ", words);
+    }
+    private static int correctQuantity(int corruptedQuantity) {
+        String s = String.valueOf(corruptedQuantity);
+        StringBuilder sb = new StringBuilder(s);
+        String reversedString = sb.reverse().toString();
+        return Integer.parseInt(reversedString);
+    }
+}
+// Chuẩn hóa địa chỉ khách hàng TCP
+package TCP;
+import java.io.Serializable;
+public class Address implements Serializable {
+    private static final long serialVersionUID = 20180801L;
+    private int id;
+    private String code;
+    private String addressLine;
+    private String city;
+    private String postalCode;
+    public Address(int id, String code, String addressLine, String city, String postalCode) {
+        this.id = id;
+        this.code = code;
+        this.addressLine = addressLine;
+        this.city = city;
+        this.postalCode = postalCode;
+    }
+    public String getAddressLine() {
+        return addressLine;
+    }
+    public void setAddressLine(String addressLine) {
+        this.addressLine = addressLine;
+    }
+    public String getPostalCode() {
+        return postalCode;
+    }
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+    public int getId() { return id; }
+    public String getCode() { return code; }
+    public String getCity() { return city; }
+    @Override
+    public String toString() {
+        return "Address [id=" + id + ", code='" + code + "', addressLine='" + addressLine + "', city='" + city + "', postalCode='" + postalCode + "']";
+    }
+}
+package TCP;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+public class AddressClient {
+    private static final int SERVER_PORT = 2209;
+    private static final String SERVER_ADDRESS = "127.0.0.1";
+    public static void main(String[] args) {
+        String studentCode = "B22DCCN568";
+        String qCode = "hBaw3Nqi";
+        String initialData = studentCode + ";" + qCode;
+        try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+            oos.writeObject(initialData);
+            oos.flush();
+            System.out.println("1. Sent initial data: " + initialData);
+            Address receivedAddress = (Address) ois.readObject();
+            System.out.println("2. Received unnormalized data: " + receivedAddress);
+            String originalAddressLine = receivedAddress.getAddressLine();
+            String correctedAddressLine = normalizeAddressLine(originalAddressLine);
+            receivedAddress.setAddressLine(correctedAddressLine);
+            String originalPostalCode = receivedAddress.getPostalCode();
+            String correctedPostalCode = normalizePostalCode(originalPostalCode);
+            receivedAddress.setPostalCode(correctedPostalCode);
+            oos.writeObject(receivedAddress);
+            oos.flush();
+            System.out.println("3. Sent normalized data: " + receivedAddress);
+            System.out.println("4. Socket closed. Program terminated.");
+        } catch (Exception e) {
+            System.err.println("Client Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private static String normalizeAddressLine(String addressLine) {
+        if (addressLine == null || addressLine.trim().isEmpty()) {
+            return "";
+        }
+        String cleaned = addressLine.replaceAll("[^a-zA-Z0-9\\s]", " ");
+        String normalizedSpaces = cleaned.trim().replaceAll("\\s+", " ");
+        StringBuilder result = new StringBuilder();
+        String[] words = normalizedSpaces.split(" ");
+        for (String word : words) {
+            if (word.isEmpty()) {
+                continue;
+            }
+            String capitalizedWord = word.substring(0, 1).toUpperCase() + 
+                                     word.substring(1).toLowerCase();
+            
+            result.append(capitalizedWord).append(" ");
+        }
+        return result.toString().trim();
+    }
+    private static String normalizePostalCode(String postalCode) {
+        if (postalCode == null) {
+            return "";
+        }
+        return postalCode.replaceAll("[^0-9\\-]", "");
     }
 }
