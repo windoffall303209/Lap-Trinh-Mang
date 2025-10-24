@@ -1,0 +1,50 @@
+import java.util.*;
+import java.io.*;
+import java.net.*;
+public class testgit {
+    public static String arrayToString(int[] a){
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i <a.length; i++){
+            sb.append(a[i]);
+            sb.append(",");
+        }
+        sb.delete(sb.length()-1,sb.length());
+        return sb.toString();
+    }
+    public static void CatMang(int [] a, int k){
+        int n = a.length;
+        for(int i = 0; i < n; i+=k){
+            int left = i;
+            int right = Math.min(i+k-1,n-1);
+            while(left < right){
+                int temp = a[left];
+                a[left] = a[right];
+                a[right] = temp;
+                left++;
+                right--;
+            }
+        }
+    }
+    public static void main(String[] args) throws IOException {
+        Socket socket = new Socket("203.162.10.109", 2207);
+        DataInputStream in = new DataInputStream(socket.getInputStream());
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+        String ma = "B22DCCN568;9wUSsFlX";
+        out.writeUTF(ma);
+        out.flush();
+        int k = in.readInt();
+        String arr = in.readUTF();
+        System.out.println("Số cần cắt" +k);
+
+        int[] a = Arrays.stream(arr.split(",")).map(String::trim).mapToInt(Integer::parseInt).toArray();
+        System.out.println("Mảng a là" +Arrays.toString(a));
+        CatMang(a, k);
+        String res = arrayToString(a);
+        System.out.println("Kết quả" + res);
+        out.writeUTF(res);
+        out.flush();
+        in.close();
+        out.close();
+        socket.close();
+    }
+}
